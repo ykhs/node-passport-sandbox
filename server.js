@@ -6,34 +6,11 @@ const session = require('express-session');
 const mongoose = require('mongoose');
 const passport = require('passport');
 const MongoStore = require('connect-mongo')(session);
-const GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
-const User = require('./app/models/user');
 
 const port = process.env.PORT || 3000;
 const app = express();
 
-const googleStrategy = new GoogleStrategy({
-  clientID: process.env.GOOGLE_CLIENTID,
-  clientSecret: process.env.GOOGLE_SECRET,
-  callbackURL: process.env.GOOGLE_CALLBACKURL
-}, (accessToken, refreshToken, profile, done) => {
-  User.findOne({'google.id': profile.id}).exec()
-    .then((user) => {
-      if (!user) {
-        user = new User({
-          google: profile._json
-        });
-        return user.save();
-      }
-      return user;
-    })
-    .then((user) => {
-      done(null, user);
-    })
-    .catch((err) => {
-      done(err);
-    });
-});
+require('./config/passport')(app, passport);
 
 app.use(cookieParser());
 app.use(session({
@@ -49,14 +26,6 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.set('views', './app/views');
 app.set('view engine', 'jade');
-
-passport.serializeUser((user, fn) => {
-  fn(null, user.id);
-});
-passport.deserializeUser((id, fn) => {
-  User.findOne({_id: id}).exec(fn);
-});
-passport.use(googleStrategy);
 
 app.get('/', (req, res) => {
   res.render('root/index', {
