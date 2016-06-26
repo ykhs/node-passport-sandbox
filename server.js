@@ -1,31 +1,14 @@
 'use strict';
 require('dotenv').config();
 const express = require('express');
-const cookieParser = require('cookie-parser');
-const session = require('express-session');
 const mongoose = require('mongoose');
 const passport = require('passport');
-const MongoStore = require('connect-mongo')(session);
 
 const port = process.env.PORT || 3000;
 const app = express();
 
 require('./config/passport')(app, passport);
-
-app.use(cookieParser());
-app.use(session({
-  secret: 'secret',
-  saveUninitialized: false,
-  resave: false,
-  store: new MongoStore({
-    url: process.env.MONGODB_URL,
-    collection: 'sessions'
-  })
-}));
-app.use(passport.initialize());
-app.use(passport.session());
-app.set('views', './app/views');
-app.set('view engine', 'jade');
+require('./config/express')(app, passport);
 
 app.get('/', (req, res) => {
   res.render('root/index', {
