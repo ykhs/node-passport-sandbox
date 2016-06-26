@@ -1,4 +1,8 @@
 extends ../layout/default
 
 block body
+  if user
+    p Hello #{user.google.displayName}
+    a(href="/signout") Sign out
+  else
     a(href="/signin/google") Sign in with Google
