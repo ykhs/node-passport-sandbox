@@ -20,6 +20,12 @@ module.exports = function(app) {
     failureRedirect: '/signin/failure'
   }));
 
+  app.post('/token_signin/google', passport.authenticate('google-id-token', {
+    failureRedirect: '/signin/failure'
+  }), (req, res) => {
+    res.send(req.user? 200: 401);
+  });
+
   app.get('/signout', (req, res) => {
     req.logout();
     res.redirect('/');
